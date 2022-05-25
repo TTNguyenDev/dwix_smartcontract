@@ -1,8 +1,5 @@
-use std::collections::HashSet;
-
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
-use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::AccountId;
 use near_sdk::{
@@ -12,8 +9,6 @@ use near_sdk::{
 
 setup_alloc!();
 
-use crate::actions_of_project::*;
-use crate::page::*;
 use crate::project::*;
 
 mod actions_of_project;
@@ -25,7 +20,7 @@ pub type ProjectId = String;
 #[derive(BorshStorageKey, BorshSerialize)]
 pub(crate) enum StorageKey {
     Websities,
-    Pages { project_id: ProjectId },
+    // Pages { project_id: ProjectId },
     ProjectsOwner,
     ProjectsOwnerInner { owner: AccountId },
 }

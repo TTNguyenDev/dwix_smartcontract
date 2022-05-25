@@ -3,35 +3,38 @@ use crate::*;
 
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Project {
-    pub pages: UnorderedSet<Page>,
+    pub name: String,
+    pub category: String,
+    pub description: String,
+    pub data: String,
     pub domain: String,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct WrappedProject {
-    pub pages: Vec<Page>,
+    pub name: String,
+    pub category: String,
+    pub description: String,
+    pub data: String,
     pub domain: String,
 }
 
 impl WrappedProject {
     fn from(project: Project) -> Self {
         WrappedProject {
+            name: project.name,
+            category: project.category,
+            description: project.description,
+            data: project.data,
             domain: project.domain,
-            pages: project.pages.to_vec(),
         }
     }
 }
 
 impl Project {
-    pub(crate) fn add_pages(&mut self, pages: Vec<Page>) {
-        for page in pages {
-            self.pages.insert(&page);
-        }
-    }
-
-    pub(crate) fn delete_page(&mut self, page: Page) {
-        self.pages.remove(&page);
+    pub(crate) fn update_data(&mut self, data: String) {
+        self.data = data;
     }
 }
 
