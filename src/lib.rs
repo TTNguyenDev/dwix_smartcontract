@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
+use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet, LookupSet};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::AccountId;
 use near_sdk::{
@@ -23,6 +23,7 @@ pub(crate) enum StorageKey {
     // Pages { project_id: ProjectId },
     ProjectsOwner,
     ProjectsOwnerInner { owner: AccountId },
+    DeployQueue,
 }
 
 #[near_bindgen]
@@ -31,6 +32,8 @@ pub struct DwixContract {
     pub owner_id: AccountId,
     pub websities: UnorderedMap<ProjectId, Project>,
     pub projects_owner: LookupMap<AccountId, UnorderedSet<ProjectId>>,
+    pub deploy_queue: UnorderedMap<ProjectId, Timestamp>,
+    pub last_deploy_request: Timestamp
 }
 
 #[near_bindgen]
@@ -41,6 +44,8 @@ impl DwixContract {
             owner_id: env::predecessor_account_id(),
             websities: UnorderedMap::new(StorageKey::Websities),
             projects_owner: LookupMap::new(StorageKey::ProjectsOwner),
+            deploy_queue: UnorderedMap::new(StorageKey::DeployQueue),
+            last_deploy_request: 0
         }
     }
 }
