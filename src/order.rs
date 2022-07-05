@@ -25,6 +25,7 @@ pub struct Order {
 
 #[near_bindgen]
 impl DwixContract {
+    #[payable]
     pub fn new_order(&mut self, address: String, product_ids: Vec<String>, site_id: ProjectId) {
         let products_by_site = self.products_by_site.get(&site_id).expect("Site not found");
 
@@ -39,6 +40,8 @@ impl DwixContract {
             .iter()
             .map(|v| self.products.get(v).unwrap().price)
             .sum();
+
+        assert!(env::attached_deposit() == price, "Not enough money");
 
         let block_timestamp = env::block_timestamp() / 1_000_000_000;
         let order_id: String = block_timestamp.to_string() + "_" + &env::predecessor_account_id();
@@ -71,6 +74,18 @@ impl DwixContract {
         orders_by_user.insert(&order_id);
         self.orders_by_user
             .insert(&env::predecessor_account_id(), &orders_by_user);
+    }
+
+    pub fn confirm_order(&mut self, site_id: ProjectId, order_id: String) {
+
+    }
+
+    pub fn cancel_order(&mut self, order_id: String) {
+
+    }
+
+    pub fn completed_order(&mut self, order_id: String) {
+
     }
 
     pub fn get_order_by_id(&self, order_id: String) -> Order {
