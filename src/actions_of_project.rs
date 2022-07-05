@@ -6,7 +6,7 @@ impl DwixContract {
     pub fn new_project(
         &mut self,
         name: String,
-        category: String,
+        category: ProjectCategory,
         domain: String,
         description: String,
         data: String,
@@ -28,7 +28,7 @@ impl DwixContract {
         let mut projects = self
             .projects_owner
             .get(&env::predecessor_account_id())
-            .unwrap_or(UnorderedSet::new(StorageKey::ProjectsOwnerInner {
+            .unwrap_or_else(|| UnorderedSet::new(StorageKey::ProjectsOwnerInner {
                 owner: env::predecessor_account_id(),
             }));
 

@@ -1,10 +1,18 @@
 use crate::page::*;
 use crate::*;
 
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+#[serde(tag = "type")]
+pub enum ProjectCategory {
+    Standard,
+    Ecom
+}
+
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct Project {
     pub name: String,
-    pub category: String,
+    pub category: ProjectCategory,
     pub description: String,
     pub data: String,
     pub domain: String,
@@ -15,7 +23,7 @@ pub struct Project {
 #[serde(crate = "near_sdk::serde")]
 pub struct WrappedProject {
     pub name: String,
-    pub category: String,
+    pub category: ProjectCategory,
     pub description: String,
     pub data: String,
     pub domain: String,

@@ -10,10 +10,14 @@ use near_sdk::{
 setup_alloc!();
 
 use crate::project::*;
+use crate::product::*;
 
 mod actions_of_project;
 mod page;
 mod project;
+
+// Ecom modules
+mod product;
 
 pub type ProjectId = String;
 
@@ -24,6 +28,11 @@ pub(crate) enum StorageKey {
     ProjectsOwner,
     ProjectsOwnerInner { owner: AccountId },
     DeployQueue,
+
+    // Ecom
+    ProductsBySite,
+    ProductsBySiteInner { site_id: String },
+    Products,
 }
 
 #[near_bindgen]
@@ -33,7 +42,11 @@ pub struct DwixContract {
     pub websities: UnorderedMap<ProjectId, Project>,
     pub projects_owner: LookupMap<AccountId, UnorderedSet<ProjectId>>,
     pub deploy_queue: UnorderedMap<ProjectId, Timestamp>,
-    pub last_deploy_request: Timestamp
+    pub last_deploy_request: Timestamp,
+
+    // Ecom
+    pub products_by_site: LookupMap<ProjectId, UnorderedSet<String>>,
+    pub products: LookupMap<String, Product>,
 }
 
 #[near_bindgen]
@@ -45,7 +58,10 @@ impl DwixContract {
             websities: UnorderedMap::new(StorageKey::Websities),
             projects_owner: LookupMap::new(StorageKey::ProjectsOwner),
             deploy_queue: UnorderedMap::new(StorageKey::DeployQueue),
-            last_deploy_request: 0
+            last_deploy_request: 0,
+
+            products_by_site: LookupMap::new(StorageKey::ProductsBySite),
+            products: LookupMap::new(StorageKey::Products)
         }
     }
 }
