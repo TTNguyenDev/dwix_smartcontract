@@ -1,5 +1,5 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet, LookupSet};
+use near_sdk::collections::{LookupMap, LookupSet, UnorderedMap, UnorderedSet};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::AccountId;
 use near_sdk::{
@@ -9,8 +9,9 @@ use near_sdk::{
 
 setup_alloc!();
 
-use crate::project::*;
 use crate::product::*;
+use crate::project::*;
+use crate::order::*;
 
 mod actions_of_project;
 mod page;
@@ -18,6 +19,7 @@ mod project;
 
 // Ecom modules
 mod product;
+mod order;
 
 pub type ProjectId = String;
 
@@ -33,6 +35,13 @@ pub(crate) enum StorageKey {
     ProductsBySite,
     ProductsBySiteInner { site_id: String },
     Products,
+
+    // Order
+    Orders,
+    OrdersBySite,
+    OrdersBySiteInner { site_id: String },
+    OrderByUser,
+    OrderByUserInner { user_id: AccountId },
 }
 
 #[near_bindgen]
@@ -47,6 +56,10 @@ pub struct DwixContract {
     // Ecom
     pub products_by_site: LookupMap<ProjectId, UnorderedSet<String>>,
     pub products: LookupMap<String, Product>,
+
+    pub orders: LookupMap<String /*OrderId*/, Order>,
+    pub orders_by_site: LookupMap<String, UnorderedSet<String>>,
+    pub orders_by_user: LookupMap<AccountId, UnorderedSet<String>>,
 }
 
 #[near_bindgen]
@@ -61,7 +74,10 @@ impl DwixContract {
             last_deploy_request: 0,
 
             products_by_site: LookupMap::new(StorageKey::ProductsBySite),
-            products: LookupMap::new(StorageKey::Products)
+            products: LookupMap::new(StorageKey::Products),
+            orders: LookupMap::new(StorageKey::Orders),
+            orders_by_site: LookupMap::new(StorageKey::OrdersBySite),
+            orders_by_user: LookupMap::new(StorageKey::OrderByUser)
         }
     }
 }

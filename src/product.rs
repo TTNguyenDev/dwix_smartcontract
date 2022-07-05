@@ -5,10 +5,8 @@ use near_sdk::json_types::WrappedBalance;
 #[serde(crate = "near_sdk::serde")]
 #[serde(tag = "type")]
 pub enum ProductStatus {
-    Pending,
-    Confirmed,
-    Completed,
-    Cancelled,
+    Available,
+    NotAvailable
 }
 
 #[derive(BorshSerialize, BorshDeserialize)]
@@ -71,6 +69,7 @@ impl DwixContract {
 
         product.id = id.clone();
         product.creator = env::predecessor_account_id();
+        product.status = ProductStatus::Available;
         self.products.insert(&id, &Product::from(product));
 
         let mut products = self.products_by_site.get(&site_id).unwrap_or_else(|| {
@@ -84,7 +83,10 @@ impl DwixContract {
 
     pub fn update_product(&mut self, product: WrappedProduct) {
         let mut internal_product = self.products.get(&product.id).expect("Product not found");
-        assert!(env::predecessor_account_id() == internal_product.creator, "You don't own this product");
+        assert!(
+            env::predecessor_account_id() == internal_product.creator,
+            "You don't own this product"
+        );
 
         // TODO: Move into update product internal fn
         internal_product.name = product.name;
@@ -92,25 +94,54 @@ impl DwixContract {
         internal_product.media = product.media;
         internal_product.price = product.price.into();
 
-        self.products.insert(&internal_product.id, &internal_product);
+        self.products
+            .insert(&internal_product.id, &internal_product);
     }
 
     pub fn product_by_id(&self, product_id: String) -> WrappedProduct {
         WrappedProduct::from(self.products.get(&product_id).expect("Product not found"))
     }
 
-    // pub fn get_products_by_site(&self, site_id: ProjectId) -> Vec<WrappedProduct> {
-    //     if let product_ids = self.products_by_site.get(&site_id) {
-    //         product_ids
-    //             .into_iter()
-    //             .map(|id| {
-    //                 // let product = self.products.get(&id).expect("Product not found");
-    //                 // WrappedProduct::from(product)
-    //                 id
+    pub fn get_products_by_site(&self, site_id: ProjectId) -> Vec<WrappedProduct> {
+        if let Some(product_ids) = self.products_by_site.get(&site_id) {
+            product_ids
+                .iter()
+                .map(|id| {
+                    let product = self.products.get(&id).expect("Product not found");
+                    WrappedProduct::from(product)
+                })
+                .collect()
+        } else {
+            vec![]
+        }
+    }
+
+    //NOTE: Marketplace feature
+    // #[payable]
+    // pub fn buy_product(&mut self, product_id: String) {
+    //     let mut product = self
+    //         .products
+    //         .get(&product_id)
+    //         .expect("Product doesn't found");
+    //
+    //     assert!(
+    //         matches!(product.status, ProductStatus::Available),
+    //         "Product is not Available"
+    //     );
+    //
+    //     assert!(env::attached_deposit() == product.price, "Not enough money");
+    //
+    //     let mut products = self
+    //         .products_by_user
+    //         .get(&env::predecessor_account_id())
+    //         .unwrap_or_else(|| {
+    //             UnorderedSet::new(StorageKey::ProductByUserInner {
+    //                 user_id: env::predecessor_account_id(),
     //             })
-    //             .collect::<Vec<WrappedProduct>>()
-    //     } else {
-    //         vec![]
-    //     }
+    //         });
+    //     product.status = ProductStatus::NotAvailable;
+    //     products.insert(&product_id);
+    //     self.products.insert(&product_id, &product);
     // }
+
 }
