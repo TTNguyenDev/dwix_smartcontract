@@ -76,16 +76,57 @@ impl DwixContract {
             .insert(&env::predecessor_account_id(), &orders_by_user);
     }
 
+    // Owner call this function
     pub fn confirm_order(&mut self, site_id: ProjectId, order_id: String) {
+        //TODO: Only owner of this order/this site can confirm
+        let mut order = self.orders.get(&order_id).expect("Order not found");
+        let products_by_site = self
+            .products_by_site
+            .get(&site_id)
+            .expect("Products not found");
 
+        for id in order.product_ids.clone() {
+            assert!(
+                products_by_site.contains(&id),
+                "Product is not from this site"
+            );
+        }
+
+        order.status = OrderStatus::Confirmed;
+        self.orders.insert(&order_id, &order);
     }
 
     pub fn cancel_order(&mut self, order_id: String) {
+        //TODO: Only buyer can cancel this order
+        let mut order = self.orders.get(&order_id).expect("Order not found");
+        assert!(matches!(order.status, OrderStatus::Pending), "Can not cancel this order");
 
+        order.status = OrderStatus::Cancelled;
+        self.orders.insert(&order_id, &order);
+
+        Promise::new(env::predecessor_account_id()).transfer(order.price.into());
     }
 
-    pub fn completed_order(&mut self, order_id: String) {
+    // Owner call this function
+    pub fn completed_order(&mut self, order_id: String, site_id: ProjectId) {
+        //TODO: Only owner of this order/this site can confirm
+        let mut order = self.orders.get(&order_id).expect("Order not found");
+        // let products_by_site = self
+        //     .products_by_site
+        //     .get(&site_id)
+        //     .expect("Products not found");
 
+        // for id in order.product_ids.clone() {
+        //     assert!(
+        //         products_by_site.contains(&id),
+        //         "Product is not from this site"
+        //     );
+        // }
+
+        order.status = OrderStatus::Completed;
+        self.orders.insert(&order_id, &order);
+
+        Promise::new(env::predecessor_account_id()).transfer(order.price.into());
     }
 
     pub fn get_order_by_id(&self, order_id: String) -> Order {
