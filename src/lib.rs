@@ -30,6 +30,7 @@ pub(crate) enum StorageKey {
     ProjectsOwner,
     ProjectsOwnerInner { owner: AccountId },
     DeployQueue,
+    UsedDomains,
 
     // Ecom
     ProductsBySite,
@@ -52,6 +53,7 @@ pub struct DwixContract {
     pub projects_owner: LookupMap<AccountId, UnorderedSet<ProjectId>>,
     pub deploy_queue: UnorderedMap<ProjectId, Timestamp>,
     pub last_deploy_request: Timestamp,
+    pub used_domains: UnorderedSet<String>,
 
     // Ecom
     pub products_by_site: LookupMap<ProjectId, UnorderedSet<String>>,
@@ -72,6 +74,7 @@ impl DwixContract {
             projects_owner: LookupMap::new(StorageKey::ProjectsOwner),
             deploy_queue: UnorderedMap::new(StorageKey::DeployQueue),
             last_deploy_request: 0,
+            used_domains: UnorderedSet::new(StorageKey::UsedDomains),
 
             products_by_site: LookupMap::new(StorageKey::ProductsBySite),
             products: LookupMap::new(StorageKey::Products),

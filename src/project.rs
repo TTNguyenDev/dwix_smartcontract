@@ -81,6 +81,10 @@ impl DwixContract {
         WrappedProject::from(project, project_id)
     }
 
+    pub fn available_domain(&self, domain: String) -> bool {
+        !self.used_domains.contains(&domain)
+    }
+
     pub fn get_user_websites(&self, account_id: AccountId) -> Vec<WrappedProject> {
         if let Some(projects) = self.projects_owner.get(&account_id) {
             projects

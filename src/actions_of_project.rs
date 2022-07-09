@@ -20,9 +20,10 @@ impl DwixContract {
             category,
             description,
             data,
-            domain,
+            domain: domain.clone(),
             owner: env::predecessor_account_id(),
         };
+        self.used_domains.insert(&domain);
         self.websities.insert(&project_id, &project);
 
         let mut projects = self
