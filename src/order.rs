@@ -40,6 +40,7 @@ impl DwixContract {
             .iter()
             .map(|v| self.products.get(v).unwrap().price)
             .sum();
+        env::log(format!("price {:#?}, attached_deposit {:#?}", price, env::attached_deposit()).as_bytes());
 
         assert!(env::attached_deposit() == price, "Not enough money");
 
@@ -66,7 +67,7 @@ impl DwixContract {
         orders_by_site.insert(&order_id.clone());
         self.orders_by_site.insert(&site_id, &orders_by_site);
 
-        let mut orders_by_user = self.orders_by_user.get(&site_id).unwrap_or_else(|| {
+        let mut orders_by_user = self.orders_by_user.get(&env::predecessor_account_id()).unwrap_or_else(|| {
             UnorderedSet::new(StorageKey::OrderByUserInner {
                 user_id: env::predecessor_account_id(),
             })
